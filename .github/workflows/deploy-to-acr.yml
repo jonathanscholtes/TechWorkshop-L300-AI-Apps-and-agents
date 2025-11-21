@@ -15,8 +15,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # Only fetch files in src/ to improve performance and ensure build context is limited
           sparse-checkout: src/
+
+      - name: Create .env file from secret
+        run: |
+          echo "${{ secrets.ENV }}" > src/.env
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -35,9 +38,7 @@ jobs:
           file: ./src/Dockerfile
           push: true
           tags: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/chat-app:latest
-          build-args: |
-            ENV_CONTENT=${{ secrets.ENV }}
+          # No build-args necessary since the Dockerfile expects to copy .env
 
-      # (Optional) For debugging:
-      # - name: Show ENV secret size
-      #   run: echo "${{ secrets.ENV }}" | wc -c
+      - name: Delete .env (cleanup)
+        run: rm src/.env
