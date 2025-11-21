@@ -1,0 +1,41 @@
+name: Run Customer Loyalty Agent Initializer (Managed Identity)
+
+on:
+  push:
+    paths:
+      - 'src/app/agents/customerLoyaltyAgent_initializer.py'
+      - 'src/prompts/CustomerLoyaltyAgentPrompt.txt'
+      - 'src/app/tools/discountLogic.py'
+  pull_request:
+    paths:
+      - 'src/app/agents/customerLoyaltyAgent_initializer.py'
+      - 'src/prompts/CustomerLoyaltyAgentPrompt.txt'
+      - 'src/app/tools/discountLogic.py'
+
+jobs:
+  run-customer-loyalty-agent-mi:
+    runs-on: [self-hosted, linux] # Make sure your runner is an Azure VM with MI assigned
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install azure-ai-projects azure-identity python-dotenv
+
+      - name: Populate .env from secrets.ENV
+        run: |
+          echo "${{ secrets.ENV }}" > .env
+
+      - name: Run Customer Loyalty Agent Initializer as Managed Identity
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.USER_ASSIGNED_MI_CLIENT_ID }} # store your MI clientId in repo secrets
+        run: |
+          python src/app/agents/customerLoyaltyAgent_initializer.py
