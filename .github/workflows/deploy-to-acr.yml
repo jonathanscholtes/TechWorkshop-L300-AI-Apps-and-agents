@@ -25,8 +25,8 @@ jobs:
         uses: azure/docker-login@v1
         with:
           login-server: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
-          username: ${{ secrets.AZURE_CLIENT_ID }}
-          password: ${{ secrets.AZURE_CLIENT_SECRET }}
+          username: ${{ secrets.AZURE_CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_CONTAINER_REGISTRY_PASSWORD }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -34,7 +34,7 @@ jobs:
           context: ./src
           file: ./src/Dockerfile
           push: true
-          tags: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ secrets.AZURE_CONTAINER_REGISTRY }}/chat-app:latest
           build-args: |
             ENV_CONTENT=${{ secrets.ENV }}
 
