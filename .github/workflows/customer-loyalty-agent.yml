@@ -32,7 +32,7 @@ jobs:
 
       - name: Populate .env from secrets.ENV
         run: |
-          echo "${{ secrets.ENV }}" > .env
+          printf '%s' "${{ secrets.ENV }}" > .env
 
       - name: Run Customer Loyalty Agent Initializer (Service Principal Auth)
         env:
