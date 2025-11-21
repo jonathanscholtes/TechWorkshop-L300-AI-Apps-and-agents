@@ -2,11 +2,6 @@ name: Deploy Docker Image to Azure Container Registry
 
 on:
   push:
-    paths:
-      - 'src/'
-  pull_request:
-    paths:
-      - 'src/'
     branches:
       - main
 
