@@ -18,27 +18,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. Checkout code
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # 2. Set up Python
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: "pip" # Enables pip cache across runs
 
+      # 3. Show Python info
       - name: Show Python info
         run: |
           set -euo pipefail
           python --version
           python -c "import sys; print(sys.version); import site; print(site.getsitepackages())"
 
+      # 4. Install system dependencies
       - name: Install system dependencies for builds
         run: |
           set -euo pipefail
           sudo apt-get update
           sudo apt-get install -y unixodbc-dev build-essential
 
+      # 5. Install Python dependencies
       - name: Upgrade pip and install dependencies
         run: |
           set -euo pipefail
@@ -57,7 +62,7 @@ jobs:
             sqlalchemy==2.0.44 \
             azure-monitor-opentelemetry==1.8.1
 
-      
+      # 6. Populate .env from GitHub Secrets
       - name: Populate .env from secrets
         env:
           ENV_FILE_CONTENT: ${{ secrets.ENV }}
@@ -68,7 +73,7 @@ jobs:
           # Verify file exists and is non-empty without leaking contents
           test -s .env
 
-
+      # 7. Run the Customer Loyalty Agent Initializer
       - name: Run Customer Loyalty Agent Initializer (Service Principal Auth)
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -77,3 +82,7 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         run: |
           set -euo pipefail
+          echo "Starting Customer Loyalty Agent Initializer..."
+          ls -al src/app/agents || { echo "Directory missing"; exit 1; }
+          python src/app/agents/customerLoyaltyAgent_initializer.py
+
