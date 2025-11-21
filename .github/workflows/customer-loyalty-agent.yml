@@ -1,4 +1,4 @@
-name: Run Customer Loyalty Agent Initializer (Managed Identity)
+name: Run Customer Loyalty Agent Initializer
 
 on:
   push:
@@ -13,8 +13,8 @@ on:
       - 'src/app/tools/discountLogic.py'
 
 jobs:
-  run-customer-loyalty-agent-mi:
-    runs-on: [self-hosted, linux] # Make sure your runner is an Azure VM with MI assigned
+  run-customer-loyalty-agent:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -34,8 +34,11 @@ jobs:
         run: |
           echo "${{ secrets.ENV }}" > .env
 
-      - name: Run Customer Loyalty Agent Initializer as Managed Identity
+      - name: Run Customer Loyalty Agent Initializer (Service Principal Auth)
         env:
-          AZURE_CLIENT_ID: ${{ secrets.USER_ASSIGNED_MI_CLIENT_ID }} # store your MI clientId in repo secrets
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         run: |
           python src/app/agents/customerLoyaltyAgent_initializer.py
